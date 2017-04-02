@@ -1,0 +1,38 @@
+{
+  "author": {
+    "name": "gyetvan-andras"
+  },
+  "bugs": {
+    "url": "https://github.com/gyetvan-andras/react-native-infinite-pager/issues"
+  },
+  "dependencies": {},
+  "description": "A react native extension which implements infinite paging.",
+  "devDependencies": {},
+  "directories": {},
+  "homepage": "https://github.com/gyetvan-andras/react-native-infinite-pager#readme",
+  "keywords": [
+    "react-native",
+    "react",
+    "ios",
+		"android",
+		"paging",
+		"infinite"
+  ],
+  "license": "MIT",
+  "main": "InfinitePager.js",
+  "maintainers": [
+    {
+      "name": "gyetvan-andras",
+      "email": "gyetvan.andras@gmail.com"
+    }
+  ],
+  "name": "react-native-infinite-pager",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyetvan-andras/react-native-infinite-pager.git"
+  },
+  "scripts": {},
+  "version": "0.0.3"
+}
