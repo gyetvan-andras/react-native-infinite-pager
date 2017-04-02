@@ -32,7 +32,7 @@ renderItem = (key) => {
 	)
 }
 ```
-- ```initialKey``` the first to display
+- ```initialKey``` key for the first component to display
 - ```prevKey``` return key prior to the key passed as parameter.
 **example**:
 ```javascript
