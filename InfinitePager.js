@@ -88,7 +88,10 @@ class InfinitePager extends Component {
 		this.scrollStart = -this.itemLength
 
 		this.panResponder = PanResponder.create({
-			onStartShouldSetPanResponder: (evt, gestureState) => true,
+			// onStartShouldSetPanResponder: (evt, gestureState) => true,
+      // onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
 			onPanResponderMove: (evt, gestureState) => {
 				this._scrollItems(gestureState.dx, gestureState.dy)
 			},
@@ -156,22 +159,21 @@ class InfinitePager extends Component {
 
 	_saveScrollPos = () => {
 		this.scrollStart = this.scrollPos
-
 		let w = this.itemLength
 		let w2 = w/2
+		let w4 = w/4
 		if(this.scrollStart > -w) {
-			if(this.scrollStart > -w2) {
+			if(this.scrollStart > -(w-w4)) {
 				this._snapTo(0)
 			} else {
 				this._snapTo(-w)
 			}
 		} else {
-			if(this.scrollStart < -(w+w2)) {
+			if(this.scrollStart < -(w+w4)) {
 				this._snapTo(w*-2)
 			} else {
 				this._snapTo(-w)
 			}
-
 		}
 	}
 
