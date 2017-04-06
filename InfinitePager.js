@@ -7,7 +7,6 @@ let styles = StyleSheet.create({
 	container: {
 		flex: 0,
 		flexWrap: 'nowrap',
-		backgroundColor: 'green',
 		overflow: 'hidden'
 	}
 })
@@ -17,12 +16,14 @@ const CENTER = 1
 const NEXT = 2
 
 class Item extends Component {
+	pos = 0
 	constructor(props) {
 		super(props)
 		let sc = props.startScroll ? props.startScroll : 0
+		this.pos = sc
 		let x = 0
 		let y = 0
-		if(props.vertical) {
+		if (props.vertical) {
 			y = sc
 		} else {
 			x = sc
@@ -33,9 +34,10 @@ class Item extends Component {
 	}
 
 	_moveTo(sp, noanim) {
+		this.pos = sp
 		let x = 0
 		let y = 0
-		if(this.props.vertical) {
+		if (this.props.vertical) {
 			y = sp
 		} else {
 			x = sp
@@ -79,7 +81,7 @@ class InfinitePager extends Component {
 	constructor(props) {
 		super(props)
 		this.vertical = props.vertical || false
-		if(this.vertical) {
+		if (this.vertical) {
 			this.itemLength = this.props.itemHeight
 		} else {
 			this.itemLength = this.props.itemWidth
@@ -89,14 +91,17 @@ class InfinitePager extends Component {
 
 		this.panResponder = PanResponder.create({
 			// onStartShouldSetPanResponder: (evt, gestureState) => true,
-      // onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
-      onMoveShouldSetPanResponder: (evt, gestureState) => true,
-      onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
+			// onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+			onMoveShouldSetPanResponder: (evt, gestureState) => true,
+			onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
 			onPanResponderMove: (evt, gestureState) => {
 				this._scrollItems(gestureState.dx, gestureState.dy)
 			},
+			onPanResponderGrant: (evt, gestureState) => {
+				this.startPos = this.items[CENTER].pos
+			},
 			onPanResponderRelease: (evt, gestureState) => {
-				this._saveScrollPos();
+				this._saveScrollPos(gestureState.dx, gestureState.dy);
 			}
 		})
 	}
@@ -157,22 +162,48 @@ class InfinitePager extends Component {
 		this._scrollItemsTo(pos)
 	}
 
-	_saveScrollPos = () => {
+	_saveScrollPos = (dx,dy) => {
+		let moveDelta = this.vertical ? dy : dx
 		this.scrollStart = this.scrollPos
 		let w = this.itemLength
-		let w2 = w/2
-		let w4 = w/4
-		if(this.scrollStart > -w) {
-			if(this.scrollStart > -(w-w4)) {
-				this._snapTo(0)
+		let pageStart = w + ((this.scrollStart / w - Math.ceil(this.scrollStart / w)) * w)
+		let centerPos = this.items[CENTER].pos
+		if (centerPos === w * -2 || centerPos === 0) return
+
+		// console.log('Move delta',moveDelta)
+		// console.log('Center pos',centerPos)
+		// console.log('Page start',pageStart)
+		// console.log('-----------------')
+		let w2 = w / 2
+		let w4 = w / 4
+
+		if(moveDelta < 0) {// <--
+			if(moveDelta === centerPos) { //at the BEGIN
+				if(moveDelta < -w4) {
+					this._snapTo(-w)
+				} else {
+					this._snapTo(0)
+				}
 			} else {
-				this._snapTo(-w)
+				if(moveDelta < -w4) {
+					this._snapTo(-w*2)
+				} else {
+					this._snapTo(-w)
+				}
 			}
-		} else {
-			if(this.scrollStart < -(w+w4)) {
-				this._snapTo(w*-2)
+		} else { // -->
+			if(centerPos < -w) { //at the END
+				if(moveDelta > w4) {
+					this._snapTo(-w)
+				} else {
+					this._snapTo(-w*2)
+				}
 			} else {
-				this._snapTo(-w)
+				if(moveDelta > w4) {
+					this._snapTo(0)
+				} else {
+					this._snapTo(-w)
+				}
 			}
 		}
 	}
@@ -221,7 +252,7 @@ class InfinitePager extends Component {
 		})
 	}
 
-	_scrollItems = (dx,dy) => {
+	_scrollItems = (dx, dy) => {
 		let np = this.vertical ? dy : dx
 		let newPos = this.scrollStart + np
 		// console.log('np',newPos)
@@ -265,7 +296,7 @@ class InfinitePager extends Component {
 	}
 
 	render() {
-		let layout = this.props.vertical ? {flexDirection:'column'} : {flexDirection:'row'}
+		let layout = this.props.vertical ? { flexDirection: 'column' } : { flexDirection: 'row' }
 		return (
 			<View {...this.panResponder.panHandlers}
 				style={[styles.container, layout, { width: this.props.itemWidth, height: this.props.itemHeight }, this.props.style]}>
