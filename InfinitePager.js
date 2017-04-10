@@ -121,6 +121,7 @@ class InfinitePager extends Component {
 		this._createItem(PREV, false)
 		this._createItem(CENTER, true, -this.itemLength)
 		this._createItem(NEXT, false)
+		this.focusedKey = this.props.initialKey
 	}
 
 	_createItem = (idx, withContent, startScroll) => {
@@ -160,6 +161,17 @@ class InfinitePager extends Component {
 	_snapTo = (pos) => {
 		this.scrollStart = pos
 		this._scrollItemsTo(pos)
+		// console.log(this.scrollStart, this.keys)
+		if(this.props.onFocused) {
+			let w = this.itemLength
+			let newKey
+			if(this.scrollStart === 0) newKey = this.keys[PREV]
+			else if(this.scrollStart === -w) newKey = this.keys[CENTER]
+			else if(this.scrollStart === -w*2) newKey = this.keys[NEXT]
+			if(newKey === this.focusedKey) return
+			this.focusedKey = newKey
+			this.props.onFocused(newKey)
+		}
 	}
 
 	_saveScrollPos = (dx,dy) => {
@@ -255,7 +267,6 @@ class InfinitePager extends Component {
 	_scrollItems = (dx, dy) => {
 		let np = this.vertical ? dy : dx
 		let newPos = this.scrollStart + np
-		// console.log('np',newPos)
 		if (newPos < -this.itemLength) { //scrolling <--
 			if (newPos <= this.itemLength * -2) {
 				let nk = this.props.nextKey(this.keys[NEXT])
@@ -312,7 +323,8 @@ InfinitePager.propTypes = {
 	prevKey: PropTypes.func.isRequired,//get the preceding key relative to passed key
 	nextKey: PropTypes.func.isRequired,//get the next key of current key
 	itemWidth: PropTypes.number.isRequired,
-	itemHeight: PropTypes.number.isRequired
+	itemHeight: PropTypes.number.isRequired,
+	onFocused:PropTypes.func
 }
 
 export default InfinitePager
